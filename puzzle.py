@@ -59,6 +59,16 @@ class Puzzle:
 
             previous_move = move
 
+        # Guarantee that a freshly generated board is not already solved.
+        if board == [
+            list(range(1, self.size + 1)),
+            list(range(self.size + 1, 2 * self.size + 1)),
+            list(range(2 * self.size + 1, 3 * self.size + 1)),
+            list(range(3 * self.size + 1, self.size * self.size)) + [0]
+        ]:
+            # The solved board can be changed by one legal move.
+            board[-1][-1], board[-1][-2] = board[-1][-2], board[-1][-1]
+
         return board
 
     def blank_pos(self):
@@ -69,12 +79,30 @@ class Puzzle:
 
     def move(self, direction):
         r, c = self.blank_pos()
-        dr, dc = {"w": (-1, 0), "s": (1, 0), "a": (0, -1), "d": (0, 1)}[direction]
+        dr, dc = {
+            "w": (-1, 0),
+            "s": (1, 0),
+            "a": (0, -1),
+            "d": (0, 1)
+        }[direction]
+
         nr, nc = r + dr, c + dc
+
         if not (0 <= nr < self.size and 0 <= nc < self.size):
             return False
-        self.board[r][c], self.board[nr][nc] = self.board[nr][nc], self.board[r][c]
+
+        self.board[r][c], self.board[nr][nc] = \
+            self.board[nr][nc], self.board[r][c]
+
         return True
 
+    def is_solved(self):
+        return self.board == [
+            list(range(1, self.size + 1)),
+            list(range(self.size + 1, 2 * self.size + 1)),
+            list(range(2 * self.size + 1, 3 * self.size + 1)),
+            list(range(3 * self.size + 1, self.size * self.size)) + [0]
+        ]
+
     def solved(self):
-        return sum(self.board, []) == list(range(1, self.size * self.size)) + [0]
+        return self.is_solved()
