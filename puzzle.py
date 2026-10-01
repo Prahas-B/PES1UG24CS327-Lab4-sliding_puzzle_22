@@ -15,7 +15,7 @@ class Puzzle:
             for r in range(self.size)
         ]
 
-        # Scramble using legal blank-tile moves.
+        # Scramble using legal blank-tile moves
         previous_move = None
         opposite = {
             "w": "s",
@@ -48,7 +48,7 @@ class Puzzle:
             if c < self.size - 1:
                 legal_moves.append("d")
 
-            # Avoid immediately undoing the previous move.
+            # Avoid immediately undoing the previous move
             if previous_move is not None:
                 legal_moves = [
                     move
@@ -74,15 +74,18 @@ class Puzzle:
 
             previous_move = move
 
-        # A freshly scrambled board must not be solved.
+        # Make sure the generated board is not already solved
         solved_board = [
-            list(range(r * self.size + 1, (r + 1) * self.size))
+            list(range(
+                r * self.size + 1,
+                (r + 1) * self.size + 1
+            ))
             for r in range(self.size)
         ]
+
         solved_board[-1][-1] = 0
 
         if board == solved_board:
-            # Make one legal move from the solved state.
             board[-1][-1], board[-1][-2] = (
                 board[-1][-2],
                 board[-1][-1]
@@ -97,6 +100,10 @@ class Puzzle:
                     return r, c
 
     def move(self, direction):
+        # Only valid movement commands are accepted
+        if direction not in ("w", "a", "s", "d"):
+            return False
+
         r, c = self.blank_pos()
 
         dr, dc = {
@@ -108,9 +115,11 @@ class Puzzle:
 
         nr, nc = r + dr, c + dc
 
+        # Move would go outside the board
         if not (0 <= nr < self.size and 0 <= nc < self.size):
             return False
 
+        # Swap the blank with the adjacent tile
         self.board[r][c], self.board[nr][nc] = (
             self.board[nr][nc],
             self.board[r][c]
@@ -120,7 +129,10 @@ class Puzzle:
 
     def is_solved(self):
         solved_board = [
-            list(range(r * self.size + 1, (r + 1) * self.size))
+            list(range(
+                r * self.size + 1,
+                (r + 1) * self.size + 1
+            ))
             for r in range(self.size)
         ]
 
