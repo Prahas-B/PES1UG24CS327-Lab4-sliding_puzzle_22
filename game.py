@@ -4,26 +4,47 @@ from puzzle import Puzzle
 
 class SlidingPuzzle:
     def __init__(self):
-        self.size = 4
+        self.size = self.get_board_size()
+
+        # Selecting the size starts a new game intentionally.
         self.puzzle = Puzzle(self.size)
         self.moves = 0
         self.started = time.monotonic()
         self.completed = False
 
+    def get_board_size(self):
+        while True:
+            print("Select board size:")
+            print("1. 3x3")
+            print("2. 4x4")
+            print("3. 5x5")
+
+            choice = input("Enter choice (1-3): ").strip()
+
+            if choice == "1":
+                return 3
+            elif choice == "2":
+                return 4
+            elif choice == "3":
+                return 5
+            else:
+                print("Invalid choice. Please enter 1, 2, or 3.\n")
+
     def display(self):
         print()
+
         for row in self.puzzle.board:
             print(" ".join(f"{x or ' ':>2}" for x in row))
-        print(
-            "Moves:",
-            self.moves,
-            " Time:",
-            int(time.monotonic() - self.started),
-            "s"
-        )
+
+        elapsed = int(time.monotonic() - self.started)
+
+        print("Moves:", self.moves, " Time:", elapsed, "s")
 
     def run(self):
-        print("Sliding Puzzle — W/A/S/D moves the tile into the blank. Q quits.")
+        print(
+            "\nSliding Puzzle — "
+            "W/A/S/D moves the tile into the blank. Q quits."
+        )
 
         while True:
             self.display()
@@ -46,15 +67,16 @@ class SlidingPuzzle:
             if self.puzzle.move(key):
                 self.moves += 1
 
-                # Check immediately after every successful move
                 if self.puzzle.is_solved():
                     elapsed = int(time.monotonic() - self.started)
+
                     self.completed = True
 
                     print()
-                    print("🎉 Congratulations! You solved the puzzle!")
+                    print("Congratulations! You solved the puzzle!")
                     print("Total moves:", self.moves)
                     print("Time:", elapsed, "s")
+
                     return
             else:
                 print("That move is not possible.")
