@@ -6,7 +6,6 @@ class SlidingPuzzle:
     def __init__(self):
         self.size = self.get_board_size()
 
-        # Selecting the size starts a new game intentionally.
         self.puzzle = Puzzle(self.size)
         self.moves = 0
         self.started = time.monotonic()
@@ -57,15 +56,16 @@ class SlidingPuzzle:
             if key == "q":
                 return
 
+            # Bad input
             if key not in "wasd":
-                print("Use W/A/S/D.")
+                print("Invalid input. Please use W, A, S, or D.")
                 continue
 
-            if self.completed:
-                continue
-
+            # Attempt the move
             if self.puzzle.move(key):
+                # Only successful moves reach here
                 self.moves += 1
+                print("Move successful!")
 
                 if self.puzzle.is_solved():
                     elapsed = int(time.monotonic() - self.started)
@@ -79,4 +79,5 @@ class SlidingPuzzle:
 
                     return
             else:
-                print("That move is not possible.")
+                # Invalid move: board edge / no adjacent tile
+                print("Invalid move. No tile can slide in that direction.")
