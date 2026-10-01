@@ -9,16 +9,24 @@ class Puzzle:
     def make_board(self):
         # Start with the solved board
         tiles = list(range(1, self.size * self.size)) + [0]
+
         board = [
             tiles[r * self.size:(r + 1) * self.size]
             for r in range(self.size)
         ]
 
-        # Scramble using legal blank-tile moves
+        # Scramble using legal blank-tile moves.
         previous_move = None
-        opposite = {"w": "s", "s": "w", "a": "d", "d": "a"}
+        opposite = {
+            "w": "s",
+            "s": "w",
+            "a": "d",
+            "d": "a"
+        }
 
-        for _ in range(self.size * self.size * 20):
+        scramble_moves = self.size * self.size * 20
+
+        for _ in range(scramble_moves):
             r, c = next(
                 (r, c)
                 for r in range(self.size)
@@ -30,17 +38,21 @@ class Puzzle:
 
             if r > 0:
                 legal_moves.append("w")
+
             if r < self.size - 1:
                 legal_moves.append("s")
+
             if c > 0:
                 legal_moves.append("a")
+
             if c < self.size - 1:
                 legal_moves.append("d")
 
-            # Avoid immediately undoing the previous move
+            # Avoid immediately undoing the previous move.
             if previous_move is not None:
                 legal_moves = [
-                    move for move in legal_moves
+                    move
+                    for move in legal_moves
                     if move != opposite[previous_move]
                 ]
 
@@ -55,19 +67,26 @@ class Puzzle:
 
             nr, nc = r + dr, c + dc
 
-            board[r][c], board[nr][nc] = board[nr][nc], board[r][c]
+            board[r][c], board[nr][nc] = (
+                board[nr][nc],
+                board[r][c]
+            )
 
             previous_move = move
 
-        # Guarantee that a freshly generated board is not already solved.
-        if board == [
-            list(range(1, self.size + 1)),
-            list(range(self.size + 1, 2 * self.size + 1)),
-            list(range(2 * self.size + 1, 3 * self.size + 1)),
-            list(range(3 * self.size + 1, self.size * self.size)) + [0]
-        ]:
-            # The solved board can be changed by one legal move.
-            board[-1][-1], board[-1][-2] = board[-1][-2], board[-1][-1]
+        # A freshly scrambled board must not be solved.
+        solved_board = [
+            list(range(r * self.size + 1, (r + 1) * self.size))
+            for r in range(self.size)
+        ]
+        solved_board[-1][-1] = 0
+
+        if board == solved_board:
+            # Make one legal move from the solved state.
+            board[-1][-1], board[-1][-2] = (
+                board[-1][-2],
+                board[-1][-1]
+            )
 
         return board
 
@@ -79,6 +98,7 @@ class Puzzle:
 
     def move(self, direction):
         r, c = self.blank_pos()
+
         dr, dc = {
             "w": (-1, 0),
             "s": (1, 0),
@@ -91,18 +111,22 @@ class Puzzle:
         if not (0 <= nr < self.size and 0 <= nc < self.size):
             return False
 
-        self.board[r][c], self.board[nr][nc] = \
-            self.board[nr][nc], self.board[r][c]
+        self.board[r][c], self.board[nr][nc] = (
+            self.board[nr][nc],
+            self.board[r][c]
+        )
 
         return True
 
     def is_solved(self):
-        return self.board == [
-            list(range(1, self.size + 1)),
-            list(range(self.size + 1, 2 * self.size + 1)),
-            list(range(2 * self.size + 1, 3 * self.size + 1)),
-            list(range(3 * self.size + 1, self.size * self.size)) + [0]
+        solved_board = [
+            list(range(r * self.size + 1, (r + 1) * self.size))
+            for r in range(self.size)
         ]
+
+        solved_board[-1][-1] = 0
+
+        return self.board == solved_board
 
     def solved(self):
         return self.is_solved()
